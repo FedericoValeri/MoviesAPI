@@ -4,6 +4,8 @@ namespace MoviesAPI.Models.Services
 {
     public interface IRepository
     {
-        List<Genre> GetAllGenres();
+        Task<List<Genre>> GetAllGenresAsync();
+
+        Genre GetGenre(int id);
     }
 }
