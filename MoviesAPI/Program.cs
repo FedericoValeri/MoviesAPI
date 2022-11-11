@@ -1,13 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Models.Services.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
-// Prevent "No 'Access-Control-Allow-Origin' header is present on the requested resource" error
+// Prevent "No 'Access-Control-Allow-Or igin' header is present on the requested resource" error
 // (N.B. This is only needed for fronted applications running inside a browser!)
 builder.Services.AddCors(options =>
 {
@@ -20,6 +23,11 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader();
     });
 });
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
