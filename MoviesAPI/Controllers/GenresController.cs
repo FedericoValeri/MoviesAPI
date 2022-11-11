@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Models.Entities;
+using MoviesAPI.Models.Services.Infrastructure;
 
 namespace MoviesAPI.Controllers
 {
@@ -7,19 +9,23 @@ namespace MoviesAPI.Controllers
     [ApiController]
     public class GenresController : ControllerBase
     {
+        private readonly ApplicationDbContext context;
         private readonly ILogger<GenresController> logger;
 
-        public GenresController(ILogger<GenresController> logger)
+        public GenresController(
+            ApplicationDbContext context,
+            ILogger<GenresController> logger)
         {
+            this.context = context;
             this.logger = logger;
         }
 
         // GET: api/genres
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             logger.LogInformation("Getting all the genres");
-            return Ok(new List<Genre>() { new Genre() { Id = 1, Name = "Comedy" } });
+            return Ok(await context.Genres.ToListAsync());
         }
 
         // GET: api/genres/{id}
@@ -30,9 +36,11 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Genre genre)
+        public async Task<IActionResult> Post([FromBody] Genre genre)
         {
-            throw new NotImplementedException();
+            context.Genres.Add(genre);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
 
         [HttpPut]
