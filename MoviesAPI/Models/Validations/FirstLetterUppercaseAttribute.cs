@@ -18,7 +18,7 @@ namespace MoviesAPI.Models.Validations
                 return new ValidationResult("First letter should be uppercase");
             }
 
-            return base.IsValid(value, validationContext);
+            return ValidationResult.Success;
         }
     }
 }
