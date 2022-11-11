@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MoviesAPI.Models.Validations;
+using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI.Models.Entities
 {
@@ -7,6 +8,7 @@ namespace MoviesAPI.Models.Entities
         public int Id { get; set; }
 
         [Required(ErrorMessage = "The field with name {0} is required")]
+        [FirstLetterUppercase]
         public string Name { get; set; }
     }
 }
