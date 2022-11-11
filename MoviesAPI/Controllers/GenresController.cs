@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MoviesAPI.Models.Entities;
-using MoviesAPI.Models.Services;
 
 namespace MoviesAPI.Controllers
 {
@@ -9,49 +7,44 @@ namespace MoviesAPI.Controllers
     [ApiController]
     public class GenresController : ControllerBase
     {
-        private readonly IRepository repository;
+        private readonly ILogger<GenresController> logger;
 
-        public GenresController(IRepository repository)
+        public GenresController(ILogger<GenresController> logger)
         {
-            this.repository = repository;
+            this.logger = logger;
         }
 
         // GET: api/genres
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public IActionResult GetAll()
         {
-            return Ok(await repository.GetAllGenresAsync());
+            logger.LogInformation("Getting all the genres");
+            return Ok(new List<Genre>() { new Genre() { Id = 1, Name = "Comedy" } });
         }
 
         // GET: api/genres/{id}
         [HttpGet("{id:int}")]
         public IActionResult Get(int id)
         {
-            Genre genre = repository.GetGenre(id);
-
-            if (genre == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(genre);
+            throw new NotImplementedException();
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] Genre genre)
         {
-            return NoContent();
+            throw new NotImplementedException();
         }
 
         [HttpPut]
         public IActionResult Put([FromBody] Genre genre)
         {
-            return NoContent();
+            throw new NotImplementedException();
         }
 
         [HttpDelete]
-        public void Delete()
+        public IActionResult Delete()
         {
+            throw new NotImplementedException();
         }
     }
 }
