@@ -7,6 +7,20 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Prevent "No 'Access-Control-Allow-Origin' header is present on the requested resource" error
+// (N.B. This is only needed for fronted applications running inside a browser!)
+builder.Services.AddCors(options =>
+{
+    var frontedURL = builder.Configuration.GetValue<string>("frontend_url");
+    options.AddDefaultPolicy(builder =>
+    {
+        builder
+        .WithOrigins(frontedURL)
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -17,6 +31,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors();
 
 app.UseAuthorization();
 
