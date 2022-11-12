@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Controllers.ApiBehavior;
+using MoviesAPI.Filters;
 using MoviesAPI.Models.Services.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +26,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(typeof(ParseBadRequest));
+}).ConfigureApiBehaviorOptions(BadRequestBehavior.Parse);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
