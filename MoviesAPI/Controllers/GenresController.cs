@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Models.DTOs.Genres;
 using MoviesAPI.Models.Entities;
 using MoviesAPI.Models.Services.Infrastructure;
 
@@ -10,13 +12,16 @@ namespace MoviesAPI.Controllers
     public class GenresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
         private readonly ILogger<GenresController> logger;
 
         public GenresController(
             ApplicationDbContext context,
+            IMapper mapper,
             ILogger<GenresController> logger)
         {
             this.context = context;
+            this.mapper = mapper;
             this.logger = logger;
         }
 
@@ -25,7 +30,8 @@ namespace MoviesAPI.Controllers
         public async Task<IActionResult> GetAll()
         {
             logger.LogInformation("Getting all the genres");
-            return Ok(await context.Genres.ToListAsync());
+            List<Genre> genres = await context.Genres.ToListAsync();
+            return Ok(mapper.Map<List<GenreDTO>>(genres));
         }
 
         // GET: api/genres/{id}
@@ -36,8 +42,9 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Genre genre)
+        public async Task<IActionResult> Post([FromBody] GenreCreateDTO genreDTO)
         {
+            Genre genre = mapper.Map<Genre>(genreDTO);
             context.Genres.Add(genre);
             await context.SaveChangesAsync();
             return NoContent();

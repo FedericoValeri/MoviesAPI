@@ -26,6 +26,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(typeof(ParseBadRequest));
