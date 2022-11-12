@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using MoviesAPI.Controllers.ApiBehavior;
-using MoviesAPI.Filters;
+using MoviesAPI.Customizations.ApiBehavior;
+using MoviesAPI.Customizations.Filters;
 using MoviesAPI.Models.Services.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +22,8 @@ builder.Services.AddCors(options =>
         builder
         .WithOrigins(frontedURL)
         .AllowAnyMethod()
-        .AllowAnyHeader();
+        .AllowAnyHeader()
+        .WithExposedHeaders(new string[] { "totalAmountOfRecords" });
     });
 });
 

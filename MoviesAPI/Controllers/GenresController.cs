@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Customizations.Helpers;
+using MoviesAPI.Models.DTOs;
 using MoviesAPI.Models.DTOs.Genres;
 using MoviesAPI.Models.Entities;
 using MoviesAPI.Models.Services.Infrastructure;
@@ -25,12 +27,16 @@ namespace MoviesAPI.Controllers
             this.logger = logger;
         }
 
-        // GET: api/genres
+        // GET: api/genres/
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PaginationDTO paginationDTO)
         {
-            logger.LogInformation("Getting all the genres");
-            List<Genre> genres = await context.Genres.ToListAsync();
+            IQueryable<Genre> query = context.Genres.AsQueryable();
+            await HttpContext.InsertParametersPaginationInHeader(query);
+            List<Genre> genres = await query
+                .OrderBy(g => g.Name)
+                .Paginate(paginationDTO)
+                .ToListAsync();
             return Ok(mapper.Map<List<GenreDTO>>(genres));
         }
 
@@ -41,6 +47,7 @@ namespace MoviesAPI.Controllers
             throw new NotImplementedException();
         }
 
+        // POST: api/genres/
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] GenreCreateDTO genreDTO)
         {

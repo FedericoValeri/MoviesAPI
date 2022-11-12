@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
-namespace MoviesAPI.Filters
+namespace MoviesAPI.Customizations.Filters
 {
     public class ParseBadRequest : IActionFilter
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace MoviesAPI.Controllers.ApiBehavior
+namespace MoviesAPI.Customizations.ApiBehavior
 {
     public class BadRequestBehavior
     {
