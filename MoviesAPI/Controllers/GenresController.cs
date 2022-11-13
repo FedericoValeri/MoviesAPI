@@ -42,9 +42,16 @@ namespace MoviesAPI.Controllers
 
         // GET: api/genres/{id}
         [HttpGet("{id:int}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            throw new NotImplementedException();
+            var genre = await context.Genres.FindAsync(id);
+
+            if (genre == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(mapper.Map<GenreDTO>(genre));
         }
 
         // POST: api/genres/
@@ -57,10 +64,19 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
-        [HttpPut]
-        public IActionResult Put([FromBody] Genre genre)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Put(int id, [FromBody] GenreCreateDTO genreCreateDTO)
         {
-            throw new NotImplementedException();
+            var genre = await context.Genres.FindAsync(id);
+
+            if (genre == null)
+            {
+                return NotFound();
+            }
+
+            mapper.Map(genreCreateDTO, genre);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
 
         [HttpDelete]
