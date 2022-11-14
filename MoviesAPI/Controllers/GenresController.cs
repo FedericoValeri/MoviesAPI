@@ -61,7 +61,7 @@ namespace MoviesAPI.Controllers
             var genre = mapper.Map<Genre>(genreDTO);
             context.Genres.Add(genre);
             await context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = genre.Id }, genre);
+            return NoContent();
         }
 
         [HttpPut("{id:int}")]

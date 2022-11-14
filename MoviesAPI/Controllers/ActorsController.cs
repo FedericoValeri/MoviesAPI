@@ -16,30 +16,34 @@ namespace MoviesAPI.Controllers
     [ApiController]
     public class ActorsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
+        private readonly IFileStorageService fileStorageService;
+        private readonly string containerName = "actors";
 
         public ActorsController(
             ApplicationDbContext context,
-            IMapper mapper)
+            IMapper mapper,
+            IFileStorageService fileStorageService)
         {
-            _context = context;
+            this.context = context;
             this.mapper = mapper;
+            this.fileStorageService = fileStorageService;
         }
 
         // GET: api/Actors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ActorDTO>>> GetActors()
+        public async Task<ActionResult<IEnumerable<ActorDTO>>> GetAll()
         {
-            IEnumerable<Actor> actors = await _context.Actors.ToListAsync();
+            IEnumerable<Actor> actors = await context.Actors.ToListAsync();
             return Ok(mapper.Map<IEnumerable<ActorDTO>>(actors));
         }
 
         // GET: api/Actors/{id}
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Actor>> GetActor(int id)
+        public async Task<ActionResult<Actor>> Get(int id)
         {
-            var actor = await _context.Actors.FindAsync(id);
+            var actor = await context.Actors.FindAsync(id);
 
             if (actor == null)
             {
@@ -52,18 +56,18 @@ namespace MoviesAPI.Controllers
         // PUT: api/Actors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutActor(int id, ActorCreateDTO actorCreateDTO)
+        public async Task<IActionResult> Put(int id, [FromForm] ActorCreateDTO actorCreateDTO)
         {
             //if (id != actor.Id)
             //{
             //    return BadRequest();
             //}
 
-            //_context.Entry(actor).State = EntityState.Modified;
+            //context.Entry(actor).State = EntityState.Modified;
 
             //try
             //{
-            //    await _context.SaveChangesAsync();
+            //    await context.SaveChangesAsync();
             //}
             //catch (DbUpdateConcurrencyException)
             //{
@@ -84,34 +88,39 @@ namespace MoviesAPI.Controllers
         // POST: api/Actors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Actor>> PostActor(ActorCreateDTO actorCreateDTO)
+        public async Task<ActionResult<Actor>> Post([FromForm] ActorCreateDTO actorCreateDTO)
         {
-            //_context.Actors.Add(actor);
-            //await _context.SaveChangesAsync();
+            var actor = mapper.Map<Actor>(actorCreateDTO);
 
-            //return CreatedAtAction("GetActor", new { id = actor.Id }, actor);
-            throw new NotImplementedException();
+            if (actorCreateDTO.Picture != null)
+            {
+                actor.Picture = await fileStorageService.SaveFile(containerName, actorCreateDTO.Picture);
+            }
+
+            context.Actors.Add(actor);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
 
         // DELETE: api/Actors/5
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteActor(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var actor = await _context.Actors.FindAsync(id);
+            var actor = await context.Actors.FindAsync(id);
             if (actor == null)
             {
                 return NotFound();
             }
 
-            _context.Actors.Remove(actor);
-            await _context.SaveChangesAsync();
+            context.Actors.Remove(actor);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool ActorExists(int id)
         {
-            return _context.Actors.Any(e => e.Id == id);
+            return context.Actors.Any(e => e.Id == id);
         }
     }
 }

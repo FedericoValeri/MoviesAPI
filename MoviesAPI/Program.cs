@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Customizations.ApiBehavior;
 using MoviesAPI.Customizations.Filters;
+using MoviesAPI.Models.Services;
 using MoviesAPI.Models.Services.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +28,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+// My services
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddScoped<IFileStorageService, LocalStorageService>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddControllers(options =>
 {
@@ -48,6 +52,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseRouting();
 
