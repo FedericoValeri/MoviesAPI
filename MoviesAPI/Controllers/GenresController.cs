@@ -44,7 +44,7 @@ namespace MoviesAPI.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
-            Genre genre = await context.Genres.FindAsync(id);
+            var genre = await context.Genres.FindAsync(id);
 
             if (genre == null)
             {
@@ -56,18 +56,18 @@ namespace MoviesAPI.Controllers
 
         // POST: api/genres/
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] GenreCreateDTO genreDTO)
+        public async Task<IActionResult> Post(GenreCreateDTO genreDTO)
         {
-            Genre genre = mapper.Map<Genre>(genreDTO);
+            var genre = mapper.Map<Genre>(genreDTO);
             context.Genres.Add(genre);
             await context.SaveChangesAsync();
-            return NoContent();
+            return CreatedAtAction(nameof(Get), new { id = genre.Id }, genre);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] GenreCreateDTO genreCreateDTO)
+        public async Task<IActionResult> Put(int id, GenreCreateDTO genreCreateDTO)
         {
-            Genre genre = await context.Genres.FindAsync(id);
+            var genre = await context.Genres.FindAsync(id);
 
             if (genre == null)
             {
@@ -83,6 +83,7 @@ namespace MoviesAPI.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var genre = await context.Genres.FindAsync(id);
+
             if (genre == null)
             {
                 return NotFound();
