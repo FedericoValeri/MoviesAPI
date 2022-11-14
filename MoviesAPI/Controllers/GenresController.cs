@@ -44,7 +44,7 @@ namespace MoviesAPI.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
-            var genre = await context.Genres.FindAsync(id);
+            Genre genre = await context.Genres.FindAsync(id);
 
             if (genre == null)
             {
@@ -67,7 +67,7 @@ namespace MoviesAPI.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Put(int id, [FromBody] GenreCreateDTO genreCreateDTO)
         {
-            var genre = await context.Genres.FindAsync(id);
+            Genre genre = await context.Genres.FindAsync(id);
 
             if (genre == null)
             {
@@ -79,10 +79,19 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
-        public IActionResult Delete()
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            throw new NotImplementedException();
+            bool exists = await context.Genres.AnyAsync(g => g.Id == id);
+
+            if (!exists)
+            {
+                return NotFound();
+            }
+
+            context.Remove(new Genre() { Id = id });
+            await context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
