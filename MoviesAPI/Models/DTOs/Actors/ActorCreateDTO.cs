@@ -9,8 +9,9 @@ namespace MoviesAPI.Models.DTOs.Actors
         public string Name { get; set; }
 
         public DateTime DateOfBirth { get; set; }
-        public string Biography { get; set; }
 
-        public IFormFile Picture { get; set; }
+        public string? Biography { get; set; }
+
+        public IFormFile? Picture { get; set; }
     }
 }

@@ -57,34 +57,25 @@ namespace MoviesAPI.Controllers
 
         // PUT: api/Actors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Put(int id, [FromForm] ActorCreateDTO actorCreateDTO)
         {
-            //if (id != actor.Id)
-            //{
-            //    return BadRequest();
-            //}
+            var actor = await context.Actors.FindAsync(id);
 
-            //context.Entry(actor).State = EntityState.Modified;
+            if (actor == null)
+            {
+                return NotFound();
+            }
 
-            //try
-            //{
-            //    await context.SaveChangesAsync();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!ActorExists(id))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
+            actor = mapper.Map(actorCreateDTO, actor);
 
-            //return NoContent();
-            throw new NotImplementedException();
+            if (actorCreateDTO.Picture != null)
+            {
+                actor.Picture = await fileStorageService.EditFile(containerName, actorCreateDTO.Picture, actor.Picture);
+            }
+
+            await context.SaveChangesAsync();
+            return NoContent();
         }
 
         // POST: api/Actors
@@ -116,13 +107,8 @@ namespace MoviesAPI.Controllers
 
             context.Actors.Remove(actor);
             await context.SaveChangesAsync();
-
+            await fileStorageService.DeleteFile(actor.Picture, containerName);
             return NoContent();
-        }
-
-        private bool ActorExists(int id)
-        {
-            return context.Actors.Any(e => e.Id == id);
         }
     }
 }
