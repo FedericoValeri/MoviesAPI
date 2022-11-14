@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Customizations.Helpers;
+using MoviesAPI.Models.DTOs;
 using MoviesAPI.Models.DTOs.Actors;
 using MoviesAPI.Models.Entities;
 using MoviesAPI.Models.Services.Infrastructure;
@@ -33,9 +30,14 @@ namespace MoviesAPI.Controllers
 
         // GET: api/Actors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ActorDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<ActorDTO>>> GetAll([FromQuery] PaginationDTO paginationDTO)
         {
-            IEnumerable<Actor> actors = await context.Actors.ToListAsync();
+            var query = context.Actors.AsQueryable();
+            await HttpContext.InsertParametersPaginationInHeader(query);
+            IEnumerable<Actor> actors = await query
+                .OrderBy(a => a.Name)
+                .Paginate(paginationDTO)
+                .ToListAsync();
             return Ok(mapper.Map<IEnumerable<ActorDTO>>(actors));
         }
 
