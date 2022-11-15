@@ -1,8 +1,12 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Customizations.ApiBehavior;
 using MoviesAPI.Customizations.Filters;
+using MoviesAPI.Models.Mapping;
 using MoviesAPI.Models.Services;
 using MoviesAPI.Models.Services.Infrastructure;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions => sqlOptions.UseNetTopologySuite());
 });
 
 // Prevent "No 'Access-Control-Allow-Or igin' header is present on the requested resource" error
@@ -30,8 +34,15 @@ builder.Services.AddCors(options =>
 
 // My services
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
-builder.Services.AddScoped<IFileStorageService, LocalStorageService>();
+builder.Services.AddSingleton(provider => new MapperConfiguration(config =>
+{
+    var geometryFactory = provider.GetRequiredService<GeometryFactory>();
+    config.AddProfile(new MappingProfile(geometryFactory));
+}).CreateMapper());
+
+builder.Services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IFileStorageService, LocalStorageService>();
 
 builder.Services.AddControllers(options =>
 {
