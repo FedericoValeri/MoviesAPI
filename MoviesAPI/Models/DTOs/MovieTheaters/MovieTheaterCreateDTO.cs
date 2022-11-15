@@ -5,7 +5,7 @@ namespace MoviesAPI.Models.DTOs.MovieTheaters
     public class MovieTheaterCreateDTO
     {
         [Required]
-        [StringLength(maximumLength: 75)]
+        [StringLength(75)]
         public string Name { get; set; }
 
         [Range(-90, 90)]

@@ -12,7 +12,7 @@ namespace MoviesAPI.Models.Entities
 
         public DateTime DateOfBirth { get; set; }
         public string Biography { get; set; }
-
         public string Picture { get; set; }
+        public ICollection<Movie> Movies { get; set; }
     }
 }

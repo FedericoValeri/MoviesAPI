@@ -11,5 +11,7 @@ namespace MoviesAPI.Models.Entities
         [StringLength(50)]
         [FirstLetterUppercase]
         public string Name { get; set; }
+
+        public ICollection<Movie> Movies { get; set; }
     }
 }
