@@ -363,4 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # wwwroot directories
-actors/
+**/wwwroot/actors/

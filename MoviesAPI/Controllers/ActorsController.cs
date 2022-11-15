@@ -28,6 +28,22 @@ namespace MoviesAPI.Controllers
             this.fileStorageService = fileStorageService;
         }
 
+        [HttpGet("searchByName/{query}")]
+        public async Task<ActionResult<List<ActorsMovieDTO>>> SearchByName(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return new List<ActorsMovieDTO>();
+            }
+
+            return await context.Actors
+                .Where(a => a.Name.Contains(query))
+                .OrderBy(a => a.Name)
+                .Select(a => new ActorsMovieDTO { Id = a.Id, Name = a.Name, Picture = a.Picture })
+                .Take(5)
+                .ToListAsync();
+        }
+
         // GET: api/Actors
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ActorDTO>>> GetAll([FromQuery] PaginationDTO paginationDTO)
