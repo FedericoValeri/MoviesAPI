@@ -71,7 +71,7 @@ namespace MoviesAPI.Controllers
             context.MovieTheaters.Add(movieTheater);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = movieTheater.Id }, movieTheater);
+            return NoContent();
         }
 
         // DELETE: api/MovieTheaters/{id}
@@ -88,11 +88,6 @@ namespace MoviesAPI.Controllers
             context.MovieTheaters.Remove(movieTheater);
             await context.SaveChangesAsync();
             return NoContent();
-        }
-
-        private bool MovieTheaterExists(int id)
-        {
-            return context.MovieTheaters.Any(e => e.Id == id);
         }
     }
 }
