@@ -77,7 +77,7 @@ namespace MoviesAPI.Controllers
         // POST: api/Movies
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Movie>> Post([FromForm] MovieCreateDTO movieCreateDTO)
+        public async Task<ActionResult<int>> Post([FromForm] MovieCreateDTO movieCreateDTO)
         {
             var movie = mapper.Map<Movie>(movieCreateDTO);
 
@@ -86,10 +86,44 @@ namespace MoviesAPI.Controllers
                 movie.Poster = await fileStorageService.SaveFile(containerName, movieCreateDTO.Poster);
             }
 
-            AnnotateActorsOrder(movie);
-            context.Movies.Add(movie);
+            context.Add(movie);
             await context.SaveChangesAsync();
-            return NoContent();
+
+            if (movieCreateDTO.GenresIds != null)
+            {
+                foreach (var id in movieCreateDTO.GenresIds)
+                {
+                    MovieGenre movieGenre = new(movie.Id, id);
+                    context.MovieGenres.Add(movieGenre);
+                }
+            }
+
+            if (movieCreateDTO.MovieTheatersIds != null)
+            {
+                foreach (var id in movieCreateDTO.MovieTheatersIds)
+                {
+                    MovieMovieTheater movieMovieTheater = new(movie.Id, id);
+                    context.MovieMovieTheaters.Add(movieMovieTheater);
+                }
+            }
+
+            if (movieCreateDTO.Actors != null)
+            {
+                for (int i = 0; i < movieCreateDTO.Actors.Count; i++)
+                {
+                    MovieActor movieActor = new(movie.Id, movieCreateDTO.Actors.ElementAt(i).Id)
+                    {
+                        Character = movieCreateDTO.Actors.ElementAt(i).Character,
+                        Order = i
+                    };
+
+                    context.MovieActors.Add(movieActor);
+                }
+            }
+
+            await context.SaveChangesAsync();
+
+            return movie.Id;
         }
 
         // DELETE: api/Movies/{id}
@@ -107,23 +141,5 @@ namespace MoviesAPI.Controllers
 
         //    return NoContent();
         //}
-
-        private void AnnotateActorsOrder(Movie movie)
-        {
-            if (movie != null)
-            {
-                IEnumerable<MovieActor> movieActors = context.MovieActors
-                    .Where(ma => ma.MovieId == movie.Id)
-                    .ToList();
-
-                if (movieActors.Any())
-                {
-                    for (int i = 0; i < movieActors.Count(); i++)
-                    {
-                        movieActors.ElementAt(i).Order = i;
-                    }
-                }
-            }
-        }
     }
 }

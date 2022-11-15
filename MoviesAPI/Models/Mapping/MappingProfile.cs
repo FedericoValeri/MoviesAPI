@@ -32,57 +32,9 @@ namespace MoviesAPI.Models.Mapping
             // Movie
             CreateMap<MovieCreateDTO, Movie>()
                 .ForMember(m => m.Poster, options => options.Ignore())
-                .ForMember(m => m.Genres, options => options.MapFrom(MapGenres))
-                .ForMember(m => m.MovieTheaters, options => options.MapFrom(MapMovieTheaters))
-                .ForMember(m => m.Actors, options => options.MapFrom(MapActors));
-        }
-
-        private static List<Genre> MapGenres(MovieCreateDTO movieCreateDTO, Movie movie)
-        {
-            List<Genre> result = new();
-
-            if (movieCreateDTO.GenresIds != null)
-            {
-                foreach (var id in movieCreateDTO.GenresIds)
-                {
-                    result.Add(new Genre() { Id = id });
-                }
-            }
-
-            return result;
-        }
-
-        private static List<MovieTheater> MapMovieTheaters(MovieCreateDTO movieCreateDTO, Movie movie)
-        {
-            List<MovieTheater> result = new();
-
-            if (movieCreateDTO.MovieTheatersIds != null)
-            {
-                foreach (var id in movieCreateDTO.MovieTheatersIds)
-                {
-                    result.Add(new MovieTheater() { Id = id });
-                }
-            }
-
-            return result;
-        }
-
-        private static List<MovieActor> MapActors(MovieCreateDTO movieCreateDTO, Movie movie)
-        {
-            List<MovieActor> result = new();
-
-            if (movieCreateDTO.Actors != null)
-            {
-                foreach (var actor in movieCreateDTO.Actors)
-                {
-                    result.Add(new MovieActor(movie.Id, actor.Id)
-                    {
-                        Character = actor.Character,
-                    });
-                }
-            }
-
-            return result;
+                .ForMember(m => m.Genres, options => options.Ignore())
+                .ForMember(m => m.MovieTheaters, options => options.Ignore())
+                .ForMember(m => m.Actors, options => options.Ignore());
         }
     }
 }

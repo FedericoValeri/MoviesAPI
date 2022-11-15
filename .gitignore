@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # wwwroot directories
 **/wwwroot/actors/
+**/wwwroot/movies/
