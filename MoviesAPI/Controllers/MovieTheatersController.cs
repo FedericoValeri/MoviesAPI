@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Customizations.Helpers;
+using MoviesAPI.Models.DTOs;
 using MoviesAPI.Models.DTOs.MovieTheaters;
 using MoviesAPI.Models.Entities;
 using MoviesAPI.Models.Services.Infrastructure;
@@ -25,9 +27,14 @@ namespace MoviesAPI.Controllers
 
         // GET: api/MovieTheaters
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MovieTheaterDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<MovieTheaterDTO>>> GetAll([FromQuery] PaginationDTO paginationDTO)
         {
-            var movieTheaters = await context.MovieTheaters.ToListAsync();
+            var query = context.MovieTheaters.AsQueryable();
+            await HttpContext.InsertParametersPaginationInHeader(query);
+            var movieTheaters = await context.MovieTheaters
+                .OrderBy(m => m.Name)
+                .Paginate(paginationDTO)
+                .ToListAsync();
             return Ok(mapper.Map<IEnumerable<MovieTheaterDTO>>(movieTheaters));
         }
 
