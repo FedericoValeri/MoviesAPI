@@ -266,19 +266,22 @@ namespace MoviesAPI.Controllers
         }
 
         // DELETE: api/Movies/{id}
-        //[HttpDelete("{id:int}")]
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    var movie = await context.Movies.FindAsync(id);
-        //    if (movie == null)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var movie = await context.Movies.FindAsync(id);
 
-        //    context.Movies.Remove(movie);
-        //    await context.SaveChangesAsync();
+            if (movie == null)
+            {
+                return NotFound();
+            }
 
-        //    return NoContent();
-        //}
+            context.Movies.Remove(movie);
+            await context.SaveChangesAsync();
+
+            await fileStorageService.DeleteFile(movie.Poster, containerName);
+
+            return NoContent();
+        }
     }
 }
