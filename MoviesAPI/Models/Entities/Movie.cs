@@ -10,7 +10,7 @@ namespace MoviesAPI.Models.Entities
         [StringLength(75)]
         public string Title { get; set; }
 
-        public string Trailer { get; set; }
+        public string? Trailer { get; set; }
         public bool InTheaters { get; set; }
         public string? Summary { get; set; }
         public DateTime ReleaseDate { get; set; }
