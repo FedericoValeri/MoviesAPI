@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Customizations.Helpers;
 using MoviesAPI.Models.DTOs;
 using MoviesAPI.Models.DTOs.Genres;
 using MoviesAPI.Models.DTOs.Movies;
 using MoviesAPI.Models.DTOs.MovieTheaters;
 using MoviesAPI.Models.Entities;
 using MoviesAPI.Models.Services.Infrastructure;
+using System.Linq;
 
 namespace MoviesAPI.Controllers
 {
@@ -194,6 +196,43 @@ namespace MoviesAPI.Controllers
 
             await context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpGet("filter")]
+        public async Task<ActionResult<List<MovieDTO>>> Filter([FromQuery] FilterMoviesDTO filterMoviesDTO)
+        {
+            var query = context.Movies.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filterMoviesDTO.Title))
+            {
+                query = query.Where(m => m.Title.Contains(filterMoviesDTO.Title));
+            }
+
+            if (filterMoviesDTO.InTheaters)
+            {
+                query = query.Where(m => m.InTheaters);
+            }
+
+            if (filterMoviesDTO.UpcomingReleases)
+            {
+                DateTime today = DateTime.Today;
+                query = query.Where(m => m.ReleaseDate > today);
+            }
+
+            if (filterMoviesDTO.GenreId != 0)
+            {
+                query = query
+                    .Include(m => m.Genres)
+                    .Where(m => m.Genres.Select(g => g.Id).Contains(filterMoviesDTO.GenreId));
+            }
+
+            await HttpContext.InsertParametersPaginationInHeader(query);
+            var movies = await query
+                .OrderBy(m => m.Title)
+                .Paginate(filterMoviesDTO.PaginationDTO)
+                .ToListAsync();
+
+            return mapper.Map<List<MovieDTO>>(movies);
         }
 
         [HttpGet("PostGet")]
