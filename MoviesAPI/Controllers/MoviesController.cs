@@ -36,18 +36,41 @@ namespace MoviesAPI.Controllers
         //}
 
         // GET: api/Movies/{id}
-        //[HttpGet("{id:int}")]
-        //public async Task<ActionResult<Movie>> Get(int id)
-        //{
-        //    var movie = await context.Movies.FindAsync(id);
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<MovieDTO>> Get(int id)
+        {
+            var movie = await context.Movies
+                .Include(m => m.Genres)
+                .Include(m => m.MovieTheaters)
+                .Include(m => m.Actors)
+                .SingleOrDefaultAsync(m => m.Id == id);
 
-        //    if (movie == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (movie == null)
+            {
+                return NotFound();
+            }
 
-        //    return movie;
-        //}
+            var dto = mapper.Map<MovieDTO>(movie);
+            // Character, Picture and Order are missing in mapping so we do mapping here
+            foreach (var actorMovie in dto.Actors)
+            {
+                var movieActorInDb = context.MovieActors.SingleOrDefault(ma => ma.MovieId == id && ma.ActorId == actorMovie.Id);
+                if (movieActorInDb != null)
+                {
+                    actorMovie.Character = movieActorInDb.Character;
+                    actorMovie.Order = movieActorInDb.Order;
+                }
+
+                var actorInDb = context.Actors.Find(actorMovie.Id);
+                if (actorInDb != null)
+                {
+                    actorMovie.Picture = actorInDb.Picture;
+                }
+            }
+
+            dto.Actors = dto.Actors.OrderBy(a => a.Order).ToList();
+            return Ok(dto);
+        }
 
         // PUT: api/Movies/{id}
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
