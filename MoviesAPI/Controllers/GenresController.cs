@@ -29,7 +29,7 @@ namespace MoviesAPI.Controllers
 
         // GET: api/genres/
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] PaginationDTO paginationDTO)
+        public async Task<IActionResult> Get([FromQuery] PaginationDTO paginationDTO)
         {
             IQueryable<Genre> query = context.Genres.AsQueryable();
             await HttpContext.InsertParametersPaginationInHeader(query);
@@ -37,6 +37,17 @@ namespace MoviesAPI.Controllers
                 .OrderBy(g => g.Name)
                 .Paginate(paginationDTO)
                 .ToListAsync();
+            return Ok(mapper.Map<List<GenreDTO>>(genres));
+        }
+
+        // GET: api/genres/
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll()
+        {
+            List<Genre> genres = await context.Genres
+             .OrderBy(g => g.Name)
+             .ToListAsync();
+
             return Ok(mapper.Map<List<GenreDTO>>(genres));
         }
 
