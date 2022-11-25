@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Models.Entities;
 
 namespace MoviesAPI.Models.Services.Infrastructure
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -12,6 +12,9 @@ namespace MoviesAPI.Models.Services.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // For Identity
+            base.OnModelCreating(builder);
+
             builder.Entity<Movie>(entity =>
             {
                 // Many-to-many relationships (join classes are manually created)
