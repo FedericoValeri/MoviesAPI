@@ -68,7 +68,7 @@ namespace MoviesAPI.Controllers
                 new Claim("email", userCredentials.Email)
             };
 
-            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(configuration["ketjwt"]));
+            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(configuration["keyjwt"]));
             SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256);
 
             DateTime expiration = DateTime.UtcNow.AddYears(1);
