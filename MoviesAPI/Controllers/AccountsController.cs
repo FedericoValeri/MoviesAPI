@@ -26,8 +26,8 @@ namespace MoviesAPI.Controllers
             this.configuration = configuration;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<AuthenticationResponse>> Create([FromBody] UserCredentials userCredentials)
+        [HttpPost("register")]
+        public async Task<ActionResult<AuthenticationResponse>> Register([FromBody] UserCredentials userCredentials)
         {
             IdentityUser user = new()
             {
@@ -47,7 +47,7 @@ namespace MoviesAPI.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<ActionResult<AuthenticationResponse>> Login([FromBody] UserCredentials userCredentials)
         {
             var result = await signInManager.PasswordSignInAsync(userCredentials.Email, userCredentials.Password, isPersistent: false, lockoutOnFailure: false);
