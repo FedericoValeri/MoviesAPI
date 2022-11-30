@@ -10,9 +10,13 @@ using MoviesAPI.Models.Services;
 using MoviesAPI.Models.Services.Infrastructure;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Disable default Identity Claims
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 // Add services to the container.
 
