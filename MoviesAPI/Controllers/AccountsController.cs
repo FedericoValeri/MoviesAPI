@@ -1,7 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MoviesAPI.Customizations.Helpers;
+using MoviesAPI.Models.DTOs;
 using MoviesAPI.Models.DTOs.Auth;
+using MoviesAPI.Models.Services.Infrastructure;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -12,17 +19,23 @@ namespace MoviesAPI.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
+        private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly IMapper mapper;
         private readonly IConfiguration configuration;
 
         public AccountsController(
+            ApplicationDbContext context,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
+            IMapper mapper,
             IConfiguration configuration)
         {
+            this.context = context;
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.mapper = mapper;
             this.configuration = configuration;
         }
 
@@ -59,6 +72,38 @@ namespace MoviesAPI.Controllers
             {
                 return BadRequest("Incorrect login");
             }
+        }
+
+        [HttpGet("listUsers")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<List<UserDTO>>> GetListUsers([FromQuery] PaginationDTO paginationDTO)
+        {
+            var query = context.Users.AsQueryable();
+            await HttpContext.InsertParametersPaginationInHeader(query);
+            var users = await query
+                .OrderBy(user => user.Email)
+                .Paginate(paginationDTO)
+                .ToListAsync();
+
+            return mapper.Map<List<UserDTO>>(users);
+        }
+
+        [HttpPost("makeAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult> MakeAdmin([FromBody] string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            await userManager.AddClaimAsync(user, new Claim("role", "admin"));
+            return NoContent();
+        }
+
+        [HttpPost("removeAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult> RemoveAdmin([FromBody] string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            await userManager.RemoveClaimAsync(user, new Claim("role", "admin"));
+            return NoContent();
         }
 
         private async Task<AuthenticationResponse> BuildTokenAsync(UserCredentials userCredentials)
