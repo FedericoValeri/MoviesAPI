@@ -39,7 +39,7 @@ namespace MoviesAPI.Controllers
 
             if (result.Succeeded)
             {
-                return BuildToken(userCredentials);
+                return await BuildTokenAsync(userCredentials);
             }
             else
             {
@@ -53,7 +53,7 @@ namespace MoviesAPI.Controllers
             var result = await signInManager.PasswordSignInAsync(userCredentials.Email, userCredentials.Password, isPersistent: false, lockoutOnFailure: false);
             if (result.Succeeded)
             {
-                return BuildToken(userCredentials);
+                return await BuildTokenAsync(userCredentials);
             }
             else
             {
@@ -61,12 +61,17 @@ namespace MoviesAPI.Controllers
             }
         }
 
-        private AuthenticationResponse BuildToken(UserCredentials userCredentials)
+        private async Task<AuthenticationResponse> BuildTokenAsync(UserCredentials userCredentials)
         {
             List<Claim> claims = new()
             {
                 new Claim("email", userCredentials.Email)
             };
+
+            var user = await userManager.FindByEmailAsync(userCredentials.Email);
+            var claimsDB = await userManager.GetClaimsAsync(user);
+
+            claims.AddRange(claimsDB);
 
             SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(configuration["keyjwt"]));
             SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256);

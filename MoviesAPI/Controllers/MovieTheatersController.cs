@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Customizations.Helpers;
@@ -6,12 +8,12 @@ using MoviesAPI.Models.DTOs;
 using MoviesAPI.Models.DTOs.MovieTheaters;
 using MoviesAPI.Models.Entities;
 using MoviesAPI.Models.Services.Infrastructure;
-using System.Collections.Generic;
 
 namespace MoviesAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class MovieTheatersController : ControllerBase
     {
         private readonly ApplicationDbContext context;
